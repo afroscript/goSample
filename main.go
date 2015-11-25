@@ -3,8 +3,12 @@ package main
 import (
 	"code.google.com/p/go.net/websocket"
 	//"io"
+	"flag"
+	"fmt"
+	"github.com/garyburd/redigo/redis"
 	"log"
 	"net/http"
+	"os"
 )
 
 func echoHandler(ws *websocket.Conn) {
@@ -21,6 +25,22 @@ func echoHandler(ws *websocket.Conn) {
 	log.Printf("%#v\n", data)
 
 	websocket.JSON.Send(ws, data)
+}
+
+func initRedis() redis.Conn {
+	var h = flag.String("hostname", "127.0.0.1", "Set Hostname")
+	var p = flag.String("port", "6379", "Set Port")
+	// var key = flag.String("key", "foo", "Set Key")
+	// var val = flag.String("value", "bar", "Set Value")
+	flag.Parse()
+
+	c, err := redis.Dial("tcp", *h+":"+*p)
+
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	return c
 }
 
 func main() {
